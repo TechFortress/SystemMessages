@@ -6,7 +6,7 @@
 
     <groupId>com.robomwm</groupId>
     <artifactId>SystemMessages</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -69,6 +69,11 @@
             <artifactId>GriefPrevention</artifactId>
             <version>16.8</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>VanishNoPacket</artifactId>
+            <version>7d76923230</version>
         </dependency>
     </dependencies>
 

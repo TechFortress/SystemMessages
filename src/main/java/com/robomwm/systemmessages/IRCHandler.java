@@ -15,6 +15,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.kitteh.vanish.event.VanishFakeJoinEvent;
+import org.kitteh.vanish.event.VanishFakeQuitEvent;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,6 +29,8 @@ import java.util.regex.Pattern;
 
 /**
  * Created on 12/22/2020.
+ *
+ * Prevents system messages being sent to IRC unless the player chats
  *
  * @author RoboMWM
  */
@@ -102,17 +106,30 @@ public class IRCHandler implements Listener
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    private void onJoin(PlayerJoinEvent event)
+    public void onJoin(PlayerJoinEvent event)
     {
-        if (recentlyLeft.remove(event.getPlayer().getUniqueId()) && event.getJoinMessage() != null && !event.getJoinMessage().isEmpty())
+        if (event.getJoinMessage() != null && !event.getJoinMessage().isEmpty() && recentlyLeft.remove(event.getPlayer().getUniqueId()))
             sendToIRC(ChatColor.GREEN + getWhitespacedName(event.getPlayer().getName()) + " rejoined", false);
+
+        //always announce new player joins
+        if (!event.getPlayer().hasPlayedBefore())
+        {
+            sendToIRC(event.getJoinMessage(), false);
+            playerSentMessage.add(event.getPlayer()); //include disconnect message since we decided to bother people about the join
+        }
+    }
+
+    @EventHandler
+    public void onJoin(VanishFakeJoinEvent event)
+    {
+        onJoin(new PlayerJoinEvent(event.getPlayer(), "."));
     }
 
     private Set<Player> playerSentMessage = Collections.newSetFromMap(new ConcurrentHashMap<Player, Boolean>());
     private Set<UUID> recentlyLeft = new HashSet<>();
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    private void onQuit(PlayerQuitEvent event)
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onQuit(PlayerQuitEvent event)
     {
         if (!playerSentMessage.remove(event.getPlayer()))
             return;
@@ -121,15 +138,21 @@ public class IRCHandler implements Listener
         sendToIRC(ChatColor.DARK_GRAY + getWhitespacedName(event.getPlayer().getName()) + " disconnected", false);
     }
 
+    @EventHandler
+    public void onQuit(VanishFakeQuitEvent event)
+    {
+        onQuit(new PlayerQuitEvent(event.getPlayer(), "."));
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    private void onChat(AsyncPlayerChatEvent event)
+    public void onChat(AsyncPlayerChatEvent event)
     {
         if (dataStore.isSoftMuted(event.getPlayer().getUniqueId()))
             return;
         playerSentMessage.add(event.getPlayer());
     }
 
-    private String getWhitespacedName(String name)
+    public String getWhitespacedName(String name)
     {
         StringBuilder nameWithZeroWidthWhitespaceBuilder = new StringBuilder(name);
         return nameWithZeroWidthWhitespaceBuilder.insert(1, "\u200B").toString();

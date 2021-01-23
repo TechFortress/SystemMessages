@@ -7,3 +7,16 @@ api-version: '1.16'
 softdepend:
   - PurpleIRC
   - GriefPrevention
+  - VanishNoPacket
+commands:
+  setmotd:
+    permission: systemmessages.setmotd
+    aliases: [ setjoinmotd ]
+  setpingmotd:
+    permission: systemmessages.setpingmotd
+
+permissions:
+  systemmessages.setmotd:
+    default: op
+  systemmessages.setpingmotd:
+    default: op
