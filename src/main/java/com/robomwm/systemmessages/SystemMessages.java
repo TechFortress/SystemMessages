@@ -38,6 +38,8 @@ public class SystemMessages extends JavaPlugin implements Listener
     {
         getConfig().addDefault("joinMOTD", "&aTech Fortress");
         getConfig().addDefault("pingMOTD", "&aTech Fortress");
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         getServer().getPluginManager().registerEvents(this, this);
         Plugin purpleIRC = getServer().getPluginManager().getPlugin("PurpleIRC");
         Plugin gp = getServer().getPluginManager().getPlugin("GriefPrevention");
@@ -94,7 +96,7 @@ public class SystemMessages extends JavaPlugin implements Listener
         if (command.getName().equalsIgnoreCase("setmotd"))
         {
             String motdColored = ChatColor.translateAlternateColorCodes('&', String.join(" ", args));
-            getConfig().set("joinMotd", motdColored);
+            getConfig().set("joinMOTD", motdColored);
             saveConfig();
             sender.sendMessage(motdColored);
             return true;
@@ -102,7 +104,7 @@ public class SystemMessages extends JavaPlugin implements Listener
         else if (command.getName().equalsIgnoreCase("setpingmotd"))
         {
             String motdColored = ChatColor.translateAlternateColorCodes('&', String.join(" ", args));
-            getConfig().set("pingMotd", motdColored);
+            getConfig().set("pingMOTD", motdColored);
             saveConfig();
             sender.sendMessage(motdColored);
             return true;
